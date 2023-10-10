@@ -45,4 +45,4 @@
 
 ## Ссылки
 
-Packagist: <https://packagist.org/packages/ariskinnv/tic-tac-toe>
+Packagist: <https://packagist.org/packages/ariskinnv/tic_tac_toe>
