@@ -1,23 +1,22 @@
 {
-    "name": "ariskinnv/task02",
+    "name": "ariskinnv/tic_tac_toe",
+    "type": "tic-tac-toe",
+    "require": {
+        "wp-cli/php-cli-tools": "^0.11.21"
+    },
     "autoload": {
+        "psr-4": {
+            "Ariskinnv\\TicTacToe\\": "src/"
+        },
         "files": [
             "src/Controller.php",
-            "src/View.php"
-        ],
-        "psr-4": {
-            "Ariskinnv\\Task02\\": "src/"
-        }
+            "src/View.php",
+            "src/Model.php"
+        ]
     },
-    "bin": [
-        "bin/tic-tac-toe.php"
-    ],
     "authors": [
         {
             "name": "ariskinnv"
         }
-    ],
-    "require": {
-        "wp-cli/php-cli-tools": "^0.11.20"
-    }
+    ]
 }

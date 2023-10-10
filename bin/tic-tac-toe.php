@@ -7,6 +7,6 @@
         require_once($autoLoadGit);
     } else {require_once($autoLoadPackgaist);}
 
-    use function ariskinnv\tic_tac_toe\Controller\showGame;
+    use function ariskinnv\tic_tac_toe\Controller\startGame;
     startGame();
 ?>
