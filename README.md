@@ -39,7 +39,7 @@
 2. Перейти в каталог, в который вы будете клонировать проект;
 3. Выполнить команду `composer create-project ariskinnv/tic_tac_toe`;
 4. Перейти в каталог vendor/bin;
-5. Запустить файл tic_tac_toe.bat.
+5. Запустить файл tic-tac-toe.bat.
 
 ---
 
