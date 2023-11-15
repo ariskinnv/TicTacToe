@@ -5,6 +5,7 @@ namespace ariskinnv\tic_tac_toe\Controller;
     use ariskinnv\tic_tac_toe\Model\Board as Board;
     use Exception as Exception;
     use LogicException as LogicException;
+    use RedBeanPHP\R as R;
 
     use function cli\prompt;
     use function cli\line;
@@ -19,6 +20,9 @@ namespace ariskinnv\tic_tac_toe\Controller;
 
 function startGame()
 {
+    if (file_exists("gamedb.db")) {
+        R::setup("sqlite:gamedb.db");
+    }
     while (true) {
         $command = prompt("Введите команду\n'--new' - начать новую игру;\n'--list' - показать результаты игр;\n'--replay [#]' - показать партию (#-номер партии);\n'--exit' - выход;");
         $gameBoard = new Board();
@@ -72,7 +76,7 @@ function gameLoop($board)
     $playerName =  $board->getUser();
     $size = $board->getDimension();
 
-    $db->exec("INSERT INTO gamesInfo (
+    R::exec("INSERT INTO gamesInfo (
         gameData, 
         gameTime, 
         playerName, 
@@ -85,7 +89,7 @@ function gameLoop($board)
         '$size', 
         'НЕ ЗАКОНЧЕНО')");
 
-    $id = $db->querySingle("SELECT idGame FROM gamesInfo ORDER BY idGame DESC LIMIT 1");
+    $id = R::querySingle("SELECT idGame FROM gamesInfo ORDER BY idGame DESC LIMIT 1");
 
     $board->setId($id);
     $gameId = $board->getGameId();
@@ -134,7 +138,7 @@ function processUserTurn($board, $markup, &$stopGame, $db)
             $mark = $board->getMarkup();
             $col = $coords[0] + 1;
             $row = $coords[1] + 1;
-            $db->exec("INSERT INTO stepsInfo (
+            R::exec("INSERT INTO stepsInfo (
                 idGame, 
                 playerMark, 
                 rowCoord, 
@@ -189,7 +193,7 @@ function processComputerTurn($board, $markup, &$stopGame, $db)
             if ($board->determineWinner($i, $j) !== "") {
                 $stopGame = true;
             }
-            $db->exec("INSERT INTO stepsInfo (
+            R::exec("INSERT INTO stepsInfo (
                 idGame, 
                 playerMark, 
                 rowCoord, 
@@ -209,6 +213,8 @@ function processComputerTurn($board, $markup, &$stopGame, $db)
 
 function inviteToContinue(&$canContinue)
 {
+    $db = $board->openDatabase();
+    $query = R::getAll("SELECT * FROM 'gamesInfo'");
     $answer = "";
     do {
         $answer = getValue("Повторить партию? (y/n)");
@@ -223,7 +229,7 @@ function inviteToContinue(&$canContinue)
 function listGames($board)
 {
     $db = $board->openDatabase();
-    $query = $db->query('SELECT * FROM gamesInfo');
+    $query = R::query('SELECT * FROM gamesInfo');
     while ($row = $query->fetchArray()) {
         line("ID $row[0])\n    Дата:$row[1] Время: $row[2]\n    Имя игрока:$row[3]\n    Размер :$row[4]\n    Result:$row[5]");
     }
@@ -232,12 +238,12 @@ function listGames($board)
 function replayGame($board, $id)
 {
     $db = $board->openDatabase();
-    $idGame = $db->querySingle("SELECT EXISTS(SELECT 1 FROM gamesInfo WHERE idGame='$id')");
+    $idGame = R::querySingle("SELECT EXISTS(SELECT 1 FROM gamesInfo WHERE idGame='$id')");
 
     if ($idGame == 1) {
-        $status = $db->querySingle("SELECT result from gamesInfo where idGame = '$id'");
-        $query = $db->query("SELECT rowCoord, colCoord, playerMark from stepsInfo where idGame = '$id'");
-        $dim = $db->querySingle("SELECT sizeBoard from gamesInfo where idGame = '$id'");
+        $status = R::querySingle("SELECT result from gamesInfo where idGame = '$id'");
+        $query = R::query("SELECT rowCoord, colCoord, playerMark from stepsInfo where idGame = '$id'");
+        $dim = R::querySingle("SELECT sizeBoard from gamesInfo where idGame = '$id'");
         $turn = 1;
         line("Статус партии: " . $status);
         $board->setDimension($dim);
